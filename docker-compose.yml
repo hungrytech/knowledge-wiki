@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: knowledge_wiki
+      POSTGRES_USER: knowledge
+      POSTGRES_PASSWORD: local-knowledge-only
+    ports: ["5433:5432"]
+    volumes:
+      - knowledge-postgres:/var/lib/postgresql/data
+      - ./infra/postgres/001-schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U knowledge -d knowledge_wiki"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: ./server
+    environment:
+      WIKI_ROOT: /data/wiki
+      DATABASE_URL: postgresql://knowledge:local-knowledge-only@postgres:5432/knowledge_wiki
+      HF_HOME: /models
+    ports: ["8000:8000"]
+    volumes:
+      - ./data/wiki:/data/wiki
+      - knowledge-models:/models
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build: ./web
+    environment:
+      VITE_API_URL: http://localhost:8000/api
+    ports: ["5173:5173"]
+    volumes:
+      - ./web/src:/app/src
+      - ./web/index.html:/app/index.html
+      - ./web/vite.config.ts:/app/vite.config.ts
+    depends_on: [api]
+
+volumes:
+  knowledge-postgres:
+  knowledge-models:

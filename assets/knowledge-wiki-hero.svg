@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Knowledge Wiki local-first architecture</title>
+  <desc id="desc">A dark visual showing Markdown source documents flowing through a local API into PostgreSQL vector search and a knowledge browser.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#070b16"/><stop offset="1" stop-color="#12102a"/></linearGradient>
+    <linearGradient id="accent" x1="0" x2="1"><stop stop-color="#55e6c1"/><stop offset="1" stop-color="#8f7cff"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="11" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#a5b4fc" stroke-opacity=".08"/></pattern>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0L9 4.5 0 9z" fill="#65e8c5"/></marker>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/><rect width="1600" height="900" fill="url(#grid)"/>
+  <circle cx="1230" cy="160" r="280" fill="#6440c6" opacity=".12"/><circle cx="330" cy="760" r="300" fill="#16b995" opacity=".1"/>
+  <text x="112" y="140" fill="#f4f6ff" font-family="ui-sans-serif,system-ui" font-size="62" font-weight="750" letter-spacing="-2">Knowledge Wiki</text>
+  <text x="116" y="190" fill="#9ca8c7" font-family="ui-sans-serif,system-ui" font-size="25">Markdown is the source of truth. Search is local. Research stays yours.</text>
+  <g fill="none" stroke="#65e8c5" stroke-width="4" stroke-linecap="round" opacity=".75" marker-end="url(#arrow)">
+    <path d="M442 486 C520 486 545 486 614 486"/><path d="M960 486 C1032 486 1050 486 1110 486"/>
+  </g>
+  <g transform="translate(120 330)">
+    <rect width="320" height="320" rx="22" fill="#0e162a" stroke="#50d9ba" stroke-opacity=".8" stroke-width="2"/>
+    <path d="M58 60h112l42 42v154H58z" fill="#17253e" stroke="#69ecc9" stroke-width="3"/><path d="M170 60v44h42" fill="none" stroke="#69ecc9" stroke-width="3"/>
+    <path d="M82 139h102M82 174h90M82 209h111M82 244h69" stroke="#9fb2d4" stroke-width="8" stroke-linecap="round"/>
+    <text x="38" y="280" fill="#f4f6ff" font-family="ui-sans-serif,system-ui" font-size="27" font-weight="700">Markdown / OKF</text>
+    <text x="38" y="309" fill="#93a2c0" font-family="ui-monospace,monospace" font-size="15">authoritative knowledge</text>
+  </g>
+  <g transform="translate(620 330)">
+    <rect width="340" height="320" rx="22" fill="#111a2c" stroke="#8f7cff" stroke-opacity=".8" stroke-width="2"/>
+    <circle cx="170" cy="127" r="70" fill="#212248" stroke="#9b8dff" stroke-width="3"/>
+    <circle cx="143" cy="108" r="8" fill="#65e8c5"/><circle cx="199" cy="92" r="8" fill="#65e8c5"/><circle cx="184" cy="155" r="8" fill="#65e8c5"/><circle cx="117" cy="159" r="8" fill="#65e8c5"/><circle cx="169" cy="128" r="9" fill="#f3f1ff"/>
+    <path d="M143 108l26 20 30-36M117 159l52-31 15 27M169 128l30-36" stroke="#b7aeff" stroke-width="3"/>
+    <text x="38" y="280" fill="#f4f6ff" font-family="ui-sans-serif,system-ui" font-size="27" font-weight="700">Local retrieval API</text>
+    <text x="38" y="309" fill="#93a2c0" font-family="ui-monospace,monospace" font-size="15">FastAPI · multilingual embeddings</text>
+  </g>
+  <g transform="translate(1115 330)">
+    <rect width="350" height="320" rx="22" fill="#12142b" stroke="#f0be72" stroke-opacity=".8" stroke-width="2"/>
+    <ellipse cx="175" cy="88" rx="76" ry="28" fill="#4a3567" stroke="#f2c87f" stroke-width="3"/><path d="M99 88v104c0 16 34 28 76 28s76-12 76-28V88" fill="#302346" stroke="#f2c87f" stroke-width="3"/><ellipse cx="175" cy="192" rx="76" ry="28" fill="#302346" stroke="#f2c87f" stroke-width="3"/>
+    <path d="M99 139c0 16 34 28 76 28s76-12 76-28" fill="none" stroke="#f2c87f" stroke-width="3"/>
+    <text x="42" y="280" fill="#f4f6ff" font-family="ui-sans-serif,system-ui" font-size="27" font-weight="700">pgvector catalog</text>
+    <text x="42" y="309" fill="#93a2c0" font-family="ui-monospace,monospace" font-size="15">rebuildable search projection</text>
+  </g>
+  <g transform="translate(120 740)"><rect width="1345" height="1" fill="#67708d" opacity=".4"/><text y="53" fill="#8f9dbb" font-family="ui-monospace,monospace" font-size="18">LOCAL-FIRST  /  OPEN MARKDOWN  /  REPRODUCIBLE RESEARCH  /  NO PAID LLM REQUIRED</text><circle cx="1300" cy="47" r="9" fill="url(#accent)" filter="url(#glow)"/></g>
+</svg>

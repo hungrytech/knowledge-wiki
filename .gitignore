@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.venv/
+__pycache__/
+.pytest_cache/
+.env
+
+# The personal knowledge corpus stays local; do not publish it with the application.
+/data/wiki/*
+!/data/wiki/.gitkeep
+
+# Local research reference exports, not public project documentation.
+/docs/dd-trace-java-spring-controller-flow.html
+/docs/spring-kafka-listener-container-cookbook.html
