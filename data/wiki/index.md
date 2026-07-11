@@ -11,11 +11,14 @@
 
 - [Feature configuration](/concepts/feature-configuration.md) — runtime flags, remote configuration, targeting, and experimentation controls.
 - [OpenFeature](/concepts/openfeature.md) — vendor-neutral feature-flag evaluation API and provider model.
+- [LINE Central Dogma](/concepts/line-central-dogma.md) — Git-backed dynamic configuration service from LINE.
+- [LINE Flagship and OpenFlagr](/concepts/line-flagship-openflagr.md) — OpenFeature-oriented LINE SDKs and their evaluator relationship.
 - [pgvector](/concepts/pgvector.md) — vector search extension for PostgreSQL.
 
 ## Comparisons
 
 - [Self-hosted feature configuration platforms](/comparisons/feature-flag-platforms.md) — Unleash, Flagsmith, GrowthBook, Flipt, and OpenFeature decision guide.
+- [JVM and Python embedded feature configuration](/comparisons/jvm-python-feature-config.md) — Togglz, FF4J, django-waffle, django-flags, and Dynaconf comparison.
 
 ## Sources
 

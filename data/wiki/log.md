@@ -2,6 +2,7 @@
 
 ## 2026-07-11
 
+* **Research**: Added detailed LINE/NAVER-adjacent, Spring/JVM, and Python/Django feature-configuration research, including Central Dogma, Flagship, OpenFlagr, Togglz, FF4J, django-waffle, django-flags, and Dynaconf.
 * **Research**: Added cited analysis of self-hosted feature configuration platforms: Unleash, Flagsmith, GrowthBook, Flipt, and OpenFeature.
 * **Retrieval design**: Added a tested Markdown heading-aware chunking primitive and reciprocal-rank-fusion ordering primitive for the pgvector-first hybrid search path.
 
