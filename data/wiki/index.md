@@ -10,3 +10,7 @@
 ## Concepts
 
 - [pgvector](/concepts/pgvector.md) — vector search extension for PostgreSQL.
+
+## Sources
+
+- [Open Knowledge Format (OKF)](/sources/open-knowledge-format-okf.md) — captured OKF v0.1 Draft specification.

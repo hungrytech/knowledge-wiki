@@ -20,9 +20,11 @@ services:
     environment:
       WIKI_ROOT: /data/wiki
       DATABASE_URL: postgresql://knowledge:local-knowledge-only@postgres:5432/knowledge_wiki
+      HF_HOME: /models
     ports: ["8000:8000"]
     volumes:
       - ./data/wiki:/data/wiki
+      - knowledge-models:/models
     depends_on:
       postgres:
         condition: service_healthy
@@ -40,3 +42,4 @@ services:
 
 volumes:
   knowledge-postgres:
+  knowledge-models:
