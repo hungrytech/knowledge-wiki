@@ -67,6 +67,51 @@ Vector search for PostgreSQL.
     assert (tmp_path / "sources/okf-launch.md").exists()
 
 
+def test_api_exposes_okf_korean_translation_extensions(tmp_path):
+    _write_concept(
+        tmp_path,
+        "concepts/ktor.md",
+        """---
+type: Concept
+title: Ktor
+title_ko: 코틀린 웹 프레임워크 Ktor
+description: Kotlin web framework
+description_ko: 코루틴 기반 Kotlin 웹 프레임워크
+body_ko: |
+  # 개요
+
+  Ktor는 Kotlin용 비동기 웹 프레임워크입니다.
+---
+
+# Overview
+
+Ktor is an asynchronous Kotlin web framework.
+""",
+    )
+
+    payload = TestClient(create_app(tmp_path)).get("/api/documents").json()[0]
+
+    assert payload["title_ko"] == "코틀린 웹 프레임워크 Ktor"
+    assert payload["description_ko"] == "코루틴 기반 Kotlin 웹 프레임워크"
+    assert payload["body_ko"] == "# 개요\n\nKtor는 Kotlin용 비동기 웹 프레임워크입니다."
+
+
+def test_api_allows_tailnet_web_origins(tmp_path):
+    _write_concept(tmp_path, "concepts/okf.md", "---\ntype: Concept\ntitle: OKF\n---\n\n# OKF")
+    client = TestClient(create_app(tmp_path))
+
+    response = client.options(
+        "/api/documents",
+        headers={
+            "Origin": "http://100.73.31.18:5173",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://100.73.31.18:5173"
+
+
 def test_api_ingests_a_url_as_an_okf_source_with_provenance(tmp_path):
     client = TestClient(create_app(tmp_path, url_fetcher=lambda _: ("Example article", "# Article\n\nSource body.")))
 

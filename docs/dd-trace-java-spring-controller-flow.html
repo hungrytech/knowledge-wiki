@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>dd-java-agent × Spring MVC — Controller Trace 흐름</title>
+<style>
+:root{--bg:#071011;--panel:#0d1b1d;--panel2:#101f21;--line:#294548;--ink:#edf5f3;--muted:#93aaa8;--lime:#c6f768;--cyan:#58d3e8;--amber:#ffc566;--pink:#ff8da1;--violet:#bd9cff;--mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;--sans:"Noto Sans KR",system-ui,sans-serif}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:var(--sans);background:var(--bg);background-image:linear-gradient(#10232655 1px,transparent 1px),linear-gradient(90deg,#10232655 1px,transparent 1px);background-size:36px 36px}.page{max-width:1440px;margin:auto;padding:30px 28px 80px}.eyebrow,.kicker{font:11px/1 var(--mono);letter-spacing:.13em;color:var(--lime);text-transform:uppercase}.hero{border:1px solid var(--line);border-radius:18px;padding:34px;background:radial-gradient(circle at 86% 0%,#1a3c3a 0,transparent 28%),#0a1719;position:relative;overflow:hidden}.hero:after{content:"";position:absolute;right:-80px;top:-100px;width:280px;height:280px;border:1px solid #c6f76844;border-radius:50%}.hero h1{font-size:clamp(29px,4vw,51px);line-height:1.12;letter-spacing:-.04em;max-width:850px;margin:14px 0 13px}.hero p{max-width:790px;color:var(--muted);line-height:1.75;margin:0}.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}.badge{border:1px solid var(--line);background:#0d2021;padding:6px 9px;border-radius:999px;color:#b9cecb;font:11px var(--mono)}.badge b{color:var(--lime)}.layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:22px;margin-top:22px}.toc{position:sticky;top:16px;align-self:start;border:1px solid var(--line);border-radius:14px;padding:14px;background:#0b181a}.toc strong{display:block;font-size:12px;margin:3px 8px 10px}.toc a{display:block;color:var(--muted);text-decoration:none;padding:8px;border-radius:7px;font-size:12px}.toc a:hover{color:var(--lime);background:#172b2c}.content{display:grid;gap:22px}.section{border:1px solid var(--line);border-radius:15px;background:#0b181a;padding:25px}.section h2{font-size:22px;margin:7px 0 10px;letter-spacing:-.025em}.section h3{font-size:15px;margin:0 0 8px}.section p,.section li{color:#aec1be;line-height:1.75;font-size:14px}.section ul{padding-left:20px;margin:8px 0}.note{border:1px solid #5c5b3155;border-radius:10px;padding:13px 15px;background:#25261655;color:#e8e1b0;font-size:13px;line-height:1.65}.note code,.code{font-family:var(--mono);color:var(--lime)}.flow{overflow:auto;padding:12px 0}.flow svg{width:100%;min-width:850px;height:auto;display:block}.flow-card{fill:#0d2021;stroke:#3a6262;stroke-width:1.4}.flow-card.agent{fill:#163229;stroke:#72d79a}.flow-card.spring{fill:#112a33;stroke:#58d3e8}.flow-card.trace{fill:#2a243b;stroke:#bd9cff}.flow-card.out{fill:#332817;stroke:#ffc566}.flow-card.error{fill:#341f29;stroke:#ff8da1}.svg-title{fill:#ecf6f3;font:700 14px var(--sans)}.svg-sub{fill:#a6bfbb;font:11px var(--mono)}.svg-label{fill:#c3d8d3;font:11px var(--mono)}.arrow{stroke:#5d8580;stroke-width:2;fill:none;marker-end:url(#arrow)}.arrow.context{stroke:#bd9cff;stroke-dasharray:6 5;marker-end:url(#arrowV)}.arrow.error{stroke:#ff8da1;stroke-dasharray:5 4;marker-end:url(#arrowE)}.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;color:var(--muted);font-size:11px}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}.tabs{display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:17px}.tab{font:600 12px var(--sans);color:#aabfbb;background:#0c191b;border:1px solid var(--line);padding:8px 11px;border-radius:8px}.tab[aria-selected="true"]{background:#223936;color:var(--lime);border-color:#658b66}.scenario{display:none}.scenario.active{display:block}.code-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.codebox{overflow:auto;border:1px solid #223c3e;background:#071314;border-radius:10px;padding:15px}.codebox .file{font:11px var(--mono);color:var(--lime);margin-bottom:10px}.codebox pre{white-space:pre-wrap;color:#c6d4d1;font:11px/1.65 var(--mono);margin:0}.line{color:#809d99}.callout-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.callout{border:1px solid var(--line);padding:15px;border-radius:10px;background:#0d2021}.callout .number{font:700 20px var(--mono);color:var(--lime)}.callout p{font-size:12px;margin:6px 0 0}.steps{counter-reset:step;display:grid;gap:10px}.step{display:grid;grid-template-columns:35px 1fr;gap:12px;padding:13px;border-radius:10px;border:1px solid #203a3b;background:#0c1a1c}.step:before{counter-increment:step;content:counter(step);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#223937;color:var(--lime);font:700 12px var(--mono)}.step h3{margin:2px 0 4px}.step p{margin:0;font-size:12px}.refs{display:grid;gap:8px}.refs a{color:#81e2f1;text-decoration-color:#395a5d;font:12px/1.5 var(--mono);overflow-wrap:anywhere}.footer{color:#78908d;font:11px var(--mono);margin:18px 3px}.focus{outline:2px solid var(--lime);outline-offset:2px}.capture{border:1px solid #355658;background:#071314;border-radius:11px;margin:14px 0}.capture summary{cursor:pointer;padding:12px 14px;color:var(--lime);font:600 12px var(--mono)}.capture summary::marker{color:var(--cyan)}.capture .capture-meta{padding:0 14px 11px;color:var(--muted);font:11px var(--mono);overflow-wrap:anywhere}.capture pre{margin:0;border-top:1px solid #244244;padding:14px;overflow:auto;white-space:pre;color:#d7e4e1;font:11px/1.62 var(--mono)}.capture .ln{color:#6b8984;user-select:none}@media(max-width:900px){.page{padding:16px}.layout{grid-template-columns:1fr}.toc{position:relative;top:auto}.toc nav{display:flex;overflow:auto}.toc a{white-space:nowrap}.code-grid,.callout-grid{grid-template-columns:1fr}.hero{padding:25px}.section{padding:18px}}@media(prefers-reduced-motion:no-preference){.pulse{animation:pulse 2s ease infinite}@keyframes pulse{50%{opacity:.45}}}
+</style>
+</head>
+<body>
+<div class="page">
+<header class="hero">
+  <div class="eyebrow"><span class="pulse">●</span> Codebase-guided explainer · dd-trace-java</div>
+  <h1>Spring MVC Controller까지<br><span style="color:var(--lime)">trace가 도달하는 실제 구조</span></h1>
+  <p><code>dd-java-agent.jar</code>는 애플리케이션 코드를 직접 수정하지 않는다. JVM 시작 시 Byte Buddy Advice를 Spring MVC의 경계 지점에 주입하고, HTTP server span의 문맥을 받아 <b>controller 실행 span</b>을 생성·연결한다. 아래는 현재 <code>dd-trace-java</code>의 Spring Web MVC 3.1 instrumentation 코드 경로를 기준으로 한 구조 설명이다.</p>
+  <div class="badges"><span class="badge"><b>대상</b> Servlet 기반 Spring MVC</span><span class="badge"><b>Agent</b> dd-java-agent.jar</span><span class="badge"><b>Module</b> spring-web</span><span class="badge"><b>핵심</b> HandlerAdapter Advice</span></div>
+</header>
+<div class="layout">
+<aside class="toc"><strong>이 문서에서 보는 것</strong><nav><a href="#big-picture">01. 전체 요청 경로</a><a href="#startup">02. 시작 시 주입 구조</a><a href="#controller">03. Controller span 생성</a><a href="#scenarios">04. 동기·비동기·오류</a><a href="#trace-tree">05. trace tree와 명명</a><a href="#operations">06. 운영상 경계</a><a href="#sources">07. 코드 근거</a></nav></aside>
+<main class="content">
+<section class="section" id="big-picture">
+ <div class="kicker">01 · request lifecycle</div><h2>한 번의 HTTP 요청에서 일어나는 일</h2>
+ <p>Controller span은 요청의 root가 아니다. 일반적으로 Servlet/container instrumentation이 만든 HTTP server context가 먼저 존재하고, <code>HandlerAdapterInstrumentation</code>이 그 활성 문맥 아래에 controller span을 추가한다. Spring이 mapping을 확정한 뒤에는 route와 handler method를 span resource에 반영한다.</p>
+ <div class="flow"><svg viewBox="0 0 1160 410" role="img" aria-label="HTTP 요청부터 Datadog Agent 내보내기까지의 Spring MVC trace 흐름"><defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8Z" fill="#5d8580"/></marker><marker id="arrowV" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8Z" fill="#bd9cff"/></marker><marker id="arrowE" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8Z" fill="#ff8da1"/></marker></defs>
+ <path class="arrow" d="M158 121H205"/><path class="arrow" d="M369 121H415"/><path class="arrow context" d="M562 121H615"/><path class="arrow" d="M770 121H820"/><path class="arrow" d="M972 121H1015"/><path class="arrow context" d="M742 235V286H875"/><path class="arrow" d="M970 320H1015"/>
+ <rect class="flow-card" x="20" y="74" width="138" height="94" rx="9"/><text class="svg-title" x="38" y="109">HTTP 요청</text><text class="svg-sub" x="38" y="132">GET /orders/42</text><text class="svg-sub" x="38" y="149">trace headers</text>
+ <rect class="flow-card trace" x="205" y="74" width="164" height="94" rx="9"/><text class="svg-title" x="223" y="109">서버 span 문맥</text><text class="svg-sub" x="223" y="132">Servlet/container</text><text class="svg-sub" x="223" y="149">DD_CONTEXT_ATTRIBUTE</text>
+ <rect class="flow-card spring" x="415" y="74" width="147" height="94" rx="9"/><text class="svg-title" x="433" y="109">DispatcherServlet</text><text class="svg-sub" x="433" y="132">handler mapping</text><text class="svg-sub" x="433" y="149">route pattern</text>
+ <rect class="flow-card agent" x="615" y="60" width="155" height="122" rx="9"/><text class="svg-title" x="633" y="96">HandlerAdapter</text><text class="svg-sub" x="633" y="119">handle*(request, …)</text><text class="svg-sub" x="633" y="137">Advice enter</text><text class="svg-sub" x="633" y="155">startSpan + attach</text>
+ <rect class="flow-card trace" x="820" y="60" width="152" height="122" rx="9"/><text class="svg-title" x="838" y="96">Controller span</text><text class="svg-sub" x="838" y="119">component:</text><text class="svg-sub" x="838" y="137">spring-web-controller</text><text class="svg-sub" x="838" y="155">resource: Class.method</text>
+ <rect class="flow-card spring" x="1015" y="74" width="125" height="94" rx="9"/><text class="svg-title" x="1033" y="109">@Controller</text><text class="svg-sub" x="1033" y="132">business code</text><text class="svg-sub" x="1033" y="149">return / throw</text>
+ <rect class="flow-card agent" x="615" y="286" width="165" height="78" rx="9"/><text class="svg-title" x="633" y="318">Advice exit</text><text class="svg-sub" x="633" y="341">close scope · finish span</text>
+ <rect class="flow-card out" x="875" y="275" width="95" height="92" rx="9"/><text class="svg-title" x="893" y="312">CoreTracer</text><text class="svg-sub" x="893" y="335">pending trace</text><text class="svg-sub" x="893" y="350">sampling</text>
+ <rect class="flow-card out" x="1015" y="275" width="125" height="92" rx="9"/><text class="svg-title" x="1033" y="312">Datadog Agent</text><text class="svg-sub" x="1033" y="335">localhost:8126</text><text class="svg-sub" x="1033" y="350">trace intake</text>
+ </svg></div>
+ <div class="legend"><span><i class="dot" style="background:var(--cyan)"></i>Spring MVC 호출</span><span><i class="dot" style="background:#72d79a"></i>dd-trace-java Advice</span><span><i class="dot" style="background:var(--violet)"></i>trace context/span</span><span><i class="dot" style="background:var(--amber)"></i>export path</span></div>
+</section>
+<section class="section" id="startup">
+ <div class="kicker">02 · class-load-time instrumentation</div><h2>Controller가 호출되기 전: agent는 어디를 바꾸나</h2>
+ <p>여기서 핵심은 <b>Spring의 bean proxy도, source-code weaving도 아니다.</b> JVM이 application class를 정의하기 <em>직전</em>, Java Instrumentation의 <code>ClassFileTransformer</code>가 원본 <code>byte[]</code>를 받아 바꾼 class bytes를 JVM에 돌려주는 흐름이다. Datadog은 이 transformer를 Byte Buddy로 조립하고, Spring MVC module은 “어떤 type/method에 어떤 Advice를 붙일지”만 선언한다.</p>
+ <div class="flow"><svg viewBox="0 0 1160 320" role="img" aria-label="dd-java-agent, Byte Buddy, ASM, JVM class definition의 class load time transformation pipeline"><defs><marker id="bootArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8Z" fill="#5d8580"/></marker></defs><path d="M170 118H220M408 118H462M662 118H716M910 118H963" class="arrow" style="marker-end:url(#bootArrow)"/><path d="M547 181V238" class="arrow context" style="marker-end:url(#bootArrow)"/><rect class="flow-card" x="20" y="70" width="150" height="95" rx="9"/><text class="svg-title" x="38" y="104">JVM premain</text><text class="svg-sub" x="38" y="128">-javaagent</text><text class="svg-sub" x="38" y="146">Instrumentation inst</text><rect class="flow-card agent" x="220" y="58" width="188" height="118" rx="9"/><text class="svg-title" x="238" y="93">AgentInstaller</text><text class="svg-sub" x="238" y="116">AgentBuilder.Default</text><text class="svg-sub" x="238" y="135">RETRANSFORMATION</text><text class="svg-sub" x="238" y="153">installOn(inst)</text><rect class="flow-card agent" x="462" y="58" width="200" height="118" rx="9"/><text class="svg-title" x="480" y="93">InstrumenterModule</text><text class="svg-sub" x="480" y="116">InstrumenterIndex + Muzzle</text><text class="svg-sub" x="480" y="135">spring-web enabled?</text><text class="svg-sub" x="480" y="153">applyInstrumentation</text><rect class="flow-card trace" x="716" y="58" width="194" height="118" rx="9"/><text class="svg-title" x="734" y="93">Byte Buddy Advice</text><text class="svg-sub" x="734" y="116">type + method matcher</text><text class="svg-sub" x="734" y="135">enter / exit bytecode</text><text class="svg-sub" x="734" y="153">net.bytebuddy.asm.Advice</text><rect class="flow-card spring" x="963" y="70" width="170" height="95" rx="9"/><text class="svg-title" x="981" y="104">JVM defineClass</text><text class="svg-sub" x="981" y="128">transformed</text><text class="svg-sub" x="981" y="146">HandlerAdapter.class</text><rect class="flow-card out" x="420" y="238" width="255" height="57" rx="9"/><text class="svg-title" x="438" y="263">ASM bytecode visitor layer</text><text class="svg-sub" x="438" y="280">Byte Buddy가 Advice를 실제 class-file instruction으로 합성하는 저수준 계층</text></svg></div>
+ <div class="note"><b>ASM을 어디까지 봐야 하나?</b> 이 Spring module은 <code>org.objectweb.asm.ClassReader</code>를 직접 호출하지 않는다. module이 선언한 것은 Byte Buddy의 <code>net.bytebuddy.asm.Advice</code>다. 하지만 Advice가 최종적으로 수행하는 일은 class-file method body의 instruction stream에 진입·종료 코드를 합성하는 것이며, Byte Buddy의 ASM visitor 계층이 그 저수준 변환을 담당한다. 즉 <b>Datadog의 integration 작성 surface는 Byte Buddy</b>, <b>실제 bytecode 형식의 바닥은 ASM/JVM class-file</b>이라고 보면 된다.</div>
+ <h3 style="margin-top:24px">A. AgentInstaller: JVM transformer를 한 번 설치하는 코드</h3>
+ <div class="code-grid"><div class="codebox"><div class="file">AgentInstaller.java · installBytebuddyAgent(…)</div><pre><span class="line">// 실제 흐름을 읽기 쉽게 축약</span>
+ByteBuddy byteBuddy = new ByteBuddy()
+  .ignore(isDefaultFinalizer());
+
+AgentBuilder agentBuilder =
+  new AgentBuilder.Default(byteBuddy)
+    .disableClassFormatChanges()
+    .with(AgentBuilder.RedefinitionStrategy
+            .RETRANSFORMATION)
+    .ignore(globalIgnoresMatcher(...));
+
+InstrumenterIndex index =
+  InstrumenterIndex.readIndex();
+
+for (InstrumenterModule module :
+       withExtensions(index.modules(...))) {
+  if (module.isApplicable(...)) {
+    transformerBuilder.applyInstrumentation(module);
+  }
+}
+
+return transformerBuilder.installOn(inst);</pre></div><div class="codebox"><div class="file">이 코드에서 파고들 포인트</div><pre><b>1. disableClassFormatChanges()</b>
+재전환(retransformation) 가능한 변환을 위해
+class의 field/method schema 변경을 막는다.
+Advice는 기존 method body를 감싸는 방식에 적합하다.
+
+<b>2. RETRANSFORMATION</b>
+이미 로드된 대상 class도 JVM 조건이 허용하면
+재변환 대상이 될 수 있다. 다만 모든 class와
+모든 structural change가 허용된다는 뜻은 아니다.
+
+<b>3. InstrumenterIndex</b>
+모든 module을 reflection으로 무작정 찾기보다,
+build-time index에서 module 목록을 읽고
+runtime extension을 합친다.
+
+<b>4. installOn(inst)</b>
+완성된 Byte Buddy AgentBuilder가
+JVM Instrumentation에 ClassFileTransformer로
+등록되는 실제 경계다.</pre></div></div>
+ <h3 style="margin-top:24px">B. InstrumenterModule + Muzzle: “이 Spring 버전에 적용해도 되는가?”</h3>
+ <div class="code-grid"><div class="codebox"><div class="file">InstrumenterModule.java</div><pre>InstrumenterModule("spring-web") {
+  enabled = InstrumenterConfig.get()
+    .isIntegrationEnabled(names, defaultEnabled());
+}
+
+getInstrumentationMuzzle() {
+  return loadStaticMuzzleReferences(
+    moduleClassLoader, moduleClassName)
+    .withReferenceProvider(runtimeMuzzleReferences());
+}
+
+helperClassNames() {
+  // target application classloader에 주입할
+  // Datadog helper 목록
+}</pre></div><div class="codebox"><div class="file">Muzzle의 역할과 한계</div><pre><b>역할</b>
+build 때 캡처한 type/method reference를 바탕으로
+현재 classpath가 integration이 기대하는 API와
+호환되는지 확인한다. 맞지 않으면 Advice 적용을
+피해 NoSuchMethodError 위험을 줄인다.
+
+<b>한계</b>
+Muzzle은 functional test가 아니다.
+reflection, MethodHandle, 실제 framework runtime
+path, 다른 agent의 transformer 순서까지
+안전하다고 증명하지 않는다.
+
+<b>탐색 키워드</b>
+MuzzleGenerator · ReferenceMatcher
+muzzle-*.txt · helperClassNames</pre></div></div>
+ <h3 style="margin-top:24px">C. Spring MVC module: type matcher → method matcher → Advice</h3>
+ <div class="code-grid"><div class="codebox"><div class="file">HandlerAdapterInstrumentation.java · 실제 선언</div><pre><span class="line">@AutoService(InstrumenterModule.class)</span>
+class HandlerAdapterInstrumentation
+  extends InstrumenterModule.Tracing
+  implements Instrumenter.ForTypeHierarchy,
+             Instrumenter.HasMethodAdvice {
+
+  hierarchyMarkerType() {
+    return "org.springframework.web.servlet
+      .HandlerAdapter";
+  }
+
+  hierarchyMatcher() {
+    return implementsInterface(
+      named(hierarchyMarkerType()));
+  }
+
+  methodAdvice(transformer) {
+    transformer.applyAdvice(
+      isMethod().and(isPublic())
+        .and(nameStartsWith("handle"))
+        .and(takesArgument(0,
+          named("javax.servlet.http.HttpServletRequest")))
+        .and(takesArguments(3)),
+      "…$ControllerAdvice");
+  }
+}</pre></div><div class="codebox"><div class="file">matcher를 JVM class loading 관점으로 읽기</div><pre><b>type 단계</b>
+Spring HandlerAdapter interface를 구현하는
+concrete class만 후보가 된다.
+
+<b>method 단계</b>
+public + 이름이 handle* + 첫 arg가
+javax.servlet.http.HttpServletRequest + 총 3 arg
+인 method만 선택한다.
+
+<b>transform 단계</b>
+선택된 method의 bytecode에
+ControllerAdvice.OnMethodEnter / OnMethodExit
+코드가 합성된다.
+
+<b>실행 단계</b>
+JVM이 변환된 HandlerAdapter method를 호출하면
+원래 Spring handle logic 앞뒤로 Advice가 먼저/나중에
+실행된다. application source call graph는 그대로다.</pre></div></div>
+ <h3 style="margin-top:24px">D. Advice가 bytecode 관점에서 하는 일</h3>
+ <div class="code-grid"><div class="codebox"><div class="file">ControllerAdvice · annotation binding</div><pre><span class="line">// Byte Buddy Advice annotation은
+// original method의 local/argument/throwable에 binding한다.</span>
+
+@Advice.OnMethodEnter(suppress = Throwable.class)
+ContextScope nameResourceAndStartSpan(
+  @Advice.Argument(0) HttpServletRequest request,
+  @Advice.Argument(2) Object handler,
+  @Advice.Local("handlerSpanKey") String key)
+
+@Advice.OnMethodExit(onThrowable = Throwable.class,
+                     suppress = Throwable.class)
+void stopSpan(
+  @Advice.Enter ContextScope scope,
+  @Advice.Thrown Throwable throwable,
+  @Advice.Local("handlerSpanKey") String key)</pre></div><div class="codebox"><div class="file">개념상 합성되는 pseudo-bytecode</div><pre><span class="line">원본 HandlerAdapter.handle(req,res,handler)</span>
+
+// ENTER advice가 만든 실행 경로
+scope = ControllerAdvice
+  .nameResourceAndStartSpan(req, handler, key)
+
+try {
+  <b>원래 HandlerAdapter.handle body</b>
+  result = …
+} catch (Throwable t) {
+  throwable = t
+  throw t
+} finally {
+  // EXIT advice가 만든 실행 경로
+  ControllerAdvice.stopSpan(
+    req, scope, throwable, key)
+}
+
+<span class="line">실제 instruction/stack-map-frame 재작성은
+Byte Buddy/ASM 계층이 담당한다.</span></pre></div></div>
+ <h3 style="margin-top:24px">E. 원문 코드 캡처 — 축약본이 아닌 실제 코드 조각</h3>
+ <p>아래 블록은 <code>DataDog/dd-trace-java</code>의 master가 가리킨 commit <code>0c919323cf18dd85657540e98cc24fa2fead8b33</code>에서 읽은 연속된 원문이다. 설명용 pseudo-code와 구분하기 위해 접힌 상태로 두었다. 펼친 뒤, 위 설명의 단계와 한 줄씩 대조하면 된다.</p>
+ <details class="capture"><summary>원문 1 · AgentBuilder 구성과 retransformation — AgentInstaller.java:141–164</summary><div class="capture-meta">https://github.com/DataDog/dd-trace-java/blob/0c919323cf18dd85657540e98cc24fa2fead8b33/dd-java-agent/agent-installer/src/main/java/datadog/trace/agent/tooling/AgentInstaller.java#L141-L164</div><pre><span class="ln">141│</span>    AgentBuilder agentBuilder = new AgentBuilder.Default(byteBuddy);
+<span class="ln">142│</span>    if (simpleMethodGraph) {
+<span class="ln">143│</span>      // faster strategy that assumes transformations use @Advice or AsmVisitorWrapper
+<span class="ln">144│</span>      agentBuilder = agentBuilder.with(AgentBuilder.TypeStrategy.Default.DECORATE);
+<span class="ln">145│</span>    }
+<span class="ln">146│</span>
+<span class="ln">147│</span>    agentBuilder =
+<span class="ln">148│</span>        agentBuilder
+<span class="ln">149│</span>            .disableClassFormatChanges()
+<span class="ln">150│</span>            .assureReadEdgeTo(inst, FieldBackedContextAccessor.class)
+<span class="ln">151│</span>            .with(AgentStrategies.transformerDecorator())
+<span class="ln">152│</span>            .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
+<span class="ln">153│</span>            .with(AgentStrategies.rediscoveryStrategy())
+<span class="ln">154│</span>            .with(redefinitionStrategyListener(enabledSystems))
+<span class="ln">155│</span>            .with(AgentStrategies.locationStrategy())
+<span class="ln">156│</span>            .with(AgentStrategies.poolStrategy())
+<span class="ln">157│</span>            .with(AgentBuilder.DescriptionStrategy.Default.POOL_ONLY)
+<span class="ln">158│</span>            .with(AgentStrategies.bufferStrategy())
+<span class="ln">159│</span>            .with(AgentStrategies.typeStrategy())
+<span class="ln">160│</span>            .with(new ClassLoadListener())
+<span class="ln">161│</span>            // FIXME: we cannot enable it yet due to BB/JVM bug, see
+<span class="ln">162│</span>            // https://github.com/raphw/byte-buddy/issues/558
+<span class="ln">163│</span>            // .with(AgentBuilder.LambdaInstrumentationStrategy.ENABLED)
+<span class="ln">164│</span>            .ignore(globalIgnoresMatcher(skipAdditionalLibraryMatcher));</pre></details>
+ <details class="capture"><summary>원문 2 · module 적용과 JVM transformer 설치 — AgentInstaller.java:215–258</summary><div class="capture-meta">https://github.com/DataDog/dd-trace-java/blob/0c919323cf18dd85657540e98cc24fa2fead8b33/dd-java-agent/agent-installer/src/main/java/datadog/trace/agent/tooling/AgentInstaller.java#L215-L258</div><pre><span class="ln">215│</span>    CombiningTransformerBuilder transformerBuilder =
+<span class="ln">216│</span>        new CombiningTransformerBuilder(agentBuilder, instrumenterIndex, enabledSystems);
+<span class="ln">217│</span>
+<span class="ln">218│</span>    int installedCount = 0;
+<span class="ln">219│</span>    for (InstrumenterModule module : instrumenterModules) {
+<span class="ln">220│</span>      if (!module.isApplicable(enabledSystems)) {
+<span class="ln">221│</span>        if (DEBUG) {
+<span class="ln">222│</span>          log.debug("Not applicable - instrumentation.class={}", module.getClass().getName());
+<span class="ln">223│</span>        }
+<span class="ln">224│</span>        continue;
+<span class="ln">225│</span>      }
+<span class="ln">226│</span>      if (DEBUG) {
+<span class="ln">227│</span>        log.debug("Loading - instrumentation.class={}", module.getClass().getName());
+<span class="ln">228│</span>      }
+<span class="ln">229│</span>      try {
+<span class="ln">230│</span>        transformerBuilder.applyInstrumentation(module);
+<span class="ln">231│</span>        installedCount++;
+<span class="ln">232│</span>      } catch (Exception | LinkageError e) {
+<span class="ln">233│</span>        log.error("Failed to load - instrumentation.class={}", module.getClass().getName(), e);
+<span class="ln">234│</span>      }
+<span class="ln">235│</span>    }
+<span class="ln">236│</span>
+<span class="ln">237│</span>    if (DEBUG) {
+<span class="ln">238│</span>      log.debug("Installed {} instrumenter(s)", installedCount);
+<span class="ln">239│</span>    }
+<span class="ln">240│</span>
+<span class="ln">241│</span>    if (!Platform.isNativeImageBuilder()) {
+<span class="ln">242│</span>      InstrumenterFlare.register();
+<span class="ln">243│</span>    }
+<span class="ln">244│</span>
+<span class="ln">245│</span>    if (InstrumenterConfig.get().isTelemetryEnabled()) {
+<span class="ln">246│</span>      InstrumenterState.setObserver(
+<span class="ln">247│</span>          new InstrumenterState.Observer() {
+<span class="ln">248│</span>            @Override
+<span class="ln">249│</span>            public void applied(Iterable&lt;String&gt; instrumentationNames) {
+<span class="ln">250│</span>              IntegrationsCollector.get().update(instrumentationNames, true);
+<span class="ln">251│</span>            }
+<span class="ln">252│</span>          });
+<span class="ln">253│</span>    }
+<span class="ln">254│</span>
+<span class="ln">255│</span>    InstrumenterState.resetDefaultState();
+<span class="ln">256│</span>    try {
+<span class="ln">257│</span>      return transformerBuilder.installOn(inst);
+<span class="ln">258│</span>    } finally {</pre></details>
+ <details class="capture" open><summary>원문 3 · Spring HandlerAdapter matcher와 controller span Advice — HandlerAdapterInstrumentation.java:56–137</summary><div class="capture-meta">https://github.com/DataDog/dd-trace-java/blob/0c919323cf18dd85657540e98cc24fa2fead8b33/dd-java-agent/instrumentation/spring/spring-webmvc/spring-webmvc-3.1/src/main/java/datadog/trace/instrumentation/springweb/HandlerAdapterInstrumentation.java#L56-L137</div><pre><span class="ln">56│</span>  @Override
+<span class="ln">57│</span>  public void methodAdvice(MethodTransformer transformer) {
+<span class="ln">58│</span>    transformer.applyAdvice(
+<span class="ln">59│</span>        isMethod()
+<span class="ln">60│</span>            .and(isPublic())
+<span class="ln">61│</span>            .and(nameStartsWith("handle"))
+<span class="ln">62│</span>            .and(takesArgument(0, named("javax.servlet.http.HttpServletRequest")))
+<span class="ln">63│</span>            .and(takesArguments(3)),
+<span class="ln">64│</span>        HandlerAdapterInstrumentation.class.getName() + "$ControllerAdvice");
+<span class="ln">65│</span>  }
+<span class="ln">66│</span>
+<span class="ln">67│</span>  public static class ControllerAdvice {
+<span class="ln">68│</span>
+<span class="ln">69│</span>    @Advice.OnMethodEnter(suppress = Throwable.class)
+<span class="ln">70│</span>    public static ContextScope nameResourceAndStartSpan(
+<span class="ln">71│</span>        @Advice.Argument(0) final HttpServletRequest request,
+<span class="ln">72│</span>        @Advice.Argument(2) final Object handler,
+<span class="ln">73│</span>        @Advice.Local("handlerSpanKey") String handlerSpanKey) {
+<span class="ln">74│</span>      handlerSpanKey = "";
+<span class="ln">75│</span>
+<span class="ln">76│</span>      // Name the parent span based on the matching pattern
+<span class="ln">77│</span>      Object contextObj = request.getAttribute(DD_CONTEXT_ATTRIBUTE);
+<span class="ln">78│</span>      if (contextObj instanceof Context) {
+<span class="ln">79│</span>        Context context = (Context) contextObj;
+<span class="ln">80│</span>        AgentSpan parentSpan = spanFromContext(context);
+<span class="ln">81│</span>        if (parentSpan != null) {
+<span class="ln">82│</span>          DECORATE.onRequest(parentSpan, request, request, rootContext());
+<span class="ln">83│</span>        }
+<span class="ln">84│</span>      }
+<span class="ln">85│</span>
+<span class="ln">86│</span>      if (activeSpan() == null) {
+<span class="ln">87│</span>        return null;
+<span class="ln">88│</span>      }
+<span class="ln">89│</span>
+<span class="ln">90│</span>      // Now create a span for handler/controller execution.
+<span class="ln">91│</span>
+<span class="ln">92│</span>      final String handlerKey;
+<span class="ln">93│</span>      if (handler instanceof HandlerMethod) {
+<span class="ln">94│</span>        handlerKey = ((HandlerMethod) handler).getBean().getClass().getName();
+<span class="ln">95│</span>      } else {
+<span class="ln">96│</span>        handlerKey = handler.getClass().getName();
+<span class="ln">97│</span>      }
+<span class="ln">98│</span>      handlerSpanKey = DD_HANDLER_SPAN_PREFIX_KEY + handlerKey;
+<span class="ln">99│</span>
+<span class="ln">100│</span>      // If the context already exists, return it
+<span class="ln">101│</span>      final Object existingContext = request.getAttribute(handlerSpanKey);
+<span class="ln">102│</span>      if (existingContext instanceof Context) {
+<span class="ln">103│</span>        return ((Context) existingContext).attach();
+<span class="ln">104│</span>      }
+<span class="ln">105│</span>
+<span class="ln">106│</span>      final AgentSpan span =
+<span class="ln">107│</span>          startSpan("spring-web-controller", DECORATE.spanName()).setMeasured(true);
+<span class="ln">108│</span>      DECORATE.afterStart(span);
+<span class="ln">109│</span>      DECORATE.onHandle(span, handler);
+<span class="ln">110│</span>
+<span class="ln">111│</span>      request.setAttribute(handlerSpanKey, span);
+<span class="ln">112│</span>      return span.attachWithContext();
+<span class="ln">113│</span>    }
+<span class="ln">114│</span>
+<span class="ln">115│</span>    @Advice.OnMethodExit(onThrowable = Throwable.class, suppress = Throwable.class)
+<span class="ln">116│</span>    public static void stopSpan(
+<span class="ln">117│</span>        @Advice.Argument(0) final HttpServletRequest request,
+<span class="ln">118│</span>        @Advice.Enter final ContextScope scope,
+<span class="ln">119│</span>        @Advice.Thrown final Throwable throwable,
+<span class="ln">120│</span>        @Advice.Local("handlerSpanKey") String handlerSpanKey) {
+<span class="ln">121│</span>      if (scope == null) {
+<span class="ln">122│</span>        return;
+<span class="ln">123│</span>      }
+<span class="ln">124│</span>      boolean finish =
+<span class="ln">125│</span>          !Boolean.TRUE.equals(
+<span class="ln">126│</span>              request.getAttribute(handlerSpanKey + DD_HANDLER_SPAN_CONTINUE_SUFFIX));
+<span class="ln">127│</span>      final AgentSpan span = spanFromContext(scope.context());
+<span class="ln">128│</span>      scope.close();
+<span class="ln">129│</span>      if (throwable != null) {
+<span class="ln">130│</span>        DECORATE.onError(span, throwable);
+<span class="ln">131│</span>        finish = true;
+<span class="ln">132│</span>      }
+<span class="ln">133│</span>      if (finish) {
+<span class="ln">134│</span>        DECORATE.beforeFinish(scope.context());
+<span class="ln">135│</span>        span.finish();
+<span class="ln">136│</span>      }
+<span class="ln">137│</span>    }</pre></details>
+ <details class="capture"><summary>원문 4 · CompletionStage 결과에 span 종료를 연결 — InvocableHandlerMethodInstrumentation.java:44–74</summary><div class="capture-meta">https://github.com/DataDog/dd-trace-java/blob/0c919323cf18dd85657540e98cc24fa2fead8b33/dd-java-agent/instrumentation/spring/spring-webmvc/spring-webmvc-3.1/src/main/java/datadog/trace/instrumentation/springweb/InvocableHandlerMethodInstrumentation.java#L44-L74</div><pre><span class="ln">44│</span>  public static class WrapContinuableResultAdvice {
+<span class="ln">45│</span>    @Advice.OnMethodExit(suppress = Throwable.class)
+<span class="ln">46│</span>    public static void after(
+<span class="ln">47│</span>        @Advice.Argument(value = 0, typing = Assigner.Typing.DYNAMIC)
+<span class="ln">48│</span>            final NativeWebRequest nativeWebRequest,
+<span class="ln">49│</span>        @Advice.Return(readOnly = false) Object result,
+<span class="ln">50│</span>        @Advice.This final InvocableHandlerMethod self) {
+<span class="ln">51│</span>      if (!(nativeWebRequest instanceof ServletWebRequest)
+<span class="ln">52│</span>          || !(result instanceof CompletionStage)) {
+<span class="ln">53│</span>        return;
+<span class="ln">54│</span>      }
+<span class="ln">55│</span>      ServletWebRequest servletWebRequest = (ServletWebRequest) nativeWebRequest;
+<span class="ln">56│</span>      final String handlerSpanKey =
+<span class="ln">57│</span>          DD_HANDLER_SPAN_PREFIX_KEY + self.getBean().getClass().getName();
+<span class="ln">58│</span>
+<span class="ln">59│</span>      if (Boolean.TRUE.equals(
+<span class="ln">60│</span>          servletWebRequest.getAttribute(
+<span class="ln">61│</span>              handlerSpanKey + DD_HANDLER_SPAN_CONTINUE_SUFFIX, ServletWebRequest.SCOPE_REQUEST))) {
+<span class="ln">62│</span>        return;
+<span class="ln">63│</span>      }
+<span class="ln">64│</span>
+<span class="ln">65│</span>      Object span = servletWebRequest.getAttribute(handlerSpanKey, ServletWebRequest.SCOPE_REQUEST);
+<span class="ln">66│</span>      if (!(span instanceof AgentSpan)) {
+<span class="ln">67│</span>        return;
+<span class="ln">68│</span>      }
+<span class="ln">69│</span>      servletWebRequest.setAttribute(
+<span class="ln">70│</span>          handlerSpanKey + DD_HANDLER_SPAN_CONTINUE_SUFFIX, true, ServletWebRequest.SCOPE_REQUEST);
+<span class="ln">71│</span>      result =
+<span class="ln">72│</span>          ((CompletionStage&lt;?&gt;) result)
+<span class="ln">73│</span>              .whenComplete(AsyncResultExtensions.finishSpan((AgentSpan) span));
+<span class="ln">74│</span>    }</pre></details>
+ <div class="note"><b>중요:</b> 여기서 “주입”은 Spring bean proxy를 등록하는 일이 아니다. class load 시점에 JVM Instrumentation API + Byte Buddy가 target method의 진입/종료 훅을 삽입하는 것이다. application source에는 annotation이나 Datadog SDK 호출이 없어도 자동 계측이 가능하다. 다만 <code>javax.servlet</code> matcher가 보이는 이 소스는 해당 Spring Web MVC 3.1 module의 현재 경로이므로, Jakarta Servlet/Spring 6 계열은 사용하는 tracer release의 별도 module·compatibility를 반드시 대조해야 한다.</div>
+</section>
+<section class="section" id="controller">
+ <div class="kicker">03 · handler adapter controller advice</div><h2>Controller span이 만들어지는 정확한 지점</h2>
+ <p>실제 controller method 호출은 HandlerAdapter가 수행한다. 따라서 Agent는 <code>HandlerAdapter.handle*</code>의 enter/exit에 Advice를 연결한다. enter에서는 route를 parent server span에 반영하고, 활성 span이 있으면 새 controller span을 시작해 scope에 attach한다.</p>
+ <div class="steps"><div class="step"><div><h3>부모 HTTP span을 route로 보강</h3><p>request attribute <code>DD_CONTEXT_ATTRIBUTE</code>에서 Context를 얻고, <code>DECORATE.onRequest(parentSpan, request, request, rootContext())</code>를 호출한다. decorator는 <code>HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE</code>가 있으면 HTTP resource를 예: <code>GET /orders/{id}</code>로 설정한다.</p></div></div><div class="step"><div><h3>중복 방지 키를 계산</h3><p><code>HandlerMethod</code>라면 handler bean의 runtime class name, 그렇지 않으면 handler class name으로 <code>dd.handler.span.&lt;class&gt;</code> request attribute 키를 만든다. 이미 Context가 있으면 새 span을 만들지 않고 기존 Context를 attach한다.</p></div></div><div class="step"><div><h3>controller span을 생성·attach</h3><p><code>startSpan("spring-web-controller", DECORATE.spanName())</code>가 <code>spring.handler</code> operation name의 measured span을 만든다. <code>DECORATE.onHandle</code>이 HandlerMethod의 declaring class + method name을 resource로 설정하고, span 자체는 request attribute에 저장된다.</p></div></div><div class="step"><div><h3>종료 시 scope를 닫고 span finish</h3><p>Advice exit에서 throwable을 decorator에 전달한다. async continuation 플래그가 없다면 <code>beforeFinish</code> 뒤 <code>span.finish()</code>한다. 즉 <b>scope 종료</b>와 <b>span 종료</b>는 구분되며, 비동기일 때 finish 시점은 뒤로 미뤄진다.</p></div></div></div>
+</section>
+<section class="section" id="scenarios">
+ <div class="kicker">04 · timeline cases</div><h2>동기, CompletionStage, 예외의 차이</h2>
+ <div class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="true" data-tab="sync">동기 controller</button><button class="tab" role="tab" aria-selected="false" data-tab="async">CompletionStage</button><button class="tab" role="tab" aria-selected="false" data-tab="error">예외 / error handler</button></div>
+ <article class="scenario active" data-panel="sync"><h3>일반적인 synchronous request</h3><div class="flow"><svg viewBox="0 0 960 220" role="img" aria-label="동기 controller span timeline"><defs><marker id="a2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8Z" fill="#5d8580"/></marker></defs><text class="svg-label" x="20" y="34">TIME →</text><path d="M110 62H875" stroke="#345353"/><path d="M110 147H875" stroke="#345353"/><text class="svg-sub" x="20" y="68">server span</text><text class="svg-sub" x="20" y="152">controller</text><rect x="205" y="128" width="450" height="38" rx="6" fill="#2a243b" stroke="#bd9cff"/><text class="svg-label" x="220" y="152">startSpan → attach → HandlerAdapter invokes @Controller → close → finish</text><line x1="205" y1="62" x2="205" y2="128" stroke="#bd9cff" stroke-dasharray="5 4"/><line x1="655" y1="62" x2="655" y2="166" stroke="#bd9cff" stroke-dasharray="5 4"/><text class="svg-sub" x="183" y="105">handle enter</text><text class="svg-sub" x="627" y="105">handle exit</text></svg></div></article>
+ <article class="scenario" data-panel="async"><h3><code>CompletionStage</code> 반환: controller span은 즉시 끝나지 않는다</h3><p><code>InvocableHandlerMethodInstrumentation</code>은 <code>invokeForRequest</code>의 반환값이 <code>CompletionStage</code>인지 검사한다. request attribute에서 controller span을 찾아 <code>.continue = true</code>로 표시하고, 반환 stage를 <code>whenComplete(AsyncResultExtensions.finishSpan(span))</code>로 감싼다. 따라서 HandlerAdapter exit은 scope만 닫고, 실제 finish는 future completion에서 일어난다.</p><div class="note">이 코드는 <b>Servlet 기반 Spring MVC의 CompletionStage 반환</b> 경로다. WebFlux/reactive controller, Kotlin coroutine, deferred result 등은 별도 instrumentation/version 조건을 확인해야 하며 같은 타임라인이라고 가정하면 안 된다.</div></article>
+ <article class="scenario" data-panel="error"><h3>예외는 두 층에서 관찰된다</h3><p><code>ControllerAdvice.stopSpan</code>은 <code>@Advice.Thrown</code> throwable이 있으면 <code>DECORATE.onError(span, throwable)</code>을 호출하고 span을 finish한다. 또 <code>DispatcherServletInstrumentation</code>은 <code>processHandlerException*</code>에 Advice를 적용한다. 여기서는 active span에 stack trace를 기록하지만, HTTP server decorator의 status code 정책(예: 5xx)에 따라 error 상태를 유지/결정한다.</p><div class="note">따라서 “예외가 던져졌다”와 “trace UI에서 span이 error로 판정된다”는 별도 문제다. @ControllerAdvice가 예외를 4xx로 변환하는 애플리케이션은 예상 상태 코드를 포함해 검증해야 한다.</div></article>
+</section>
+<section class="section" id="trace-tree">
+ <div class="kicker">05 · semantic trace tree</div><h2>Datadog에서 기대할 수 있는 span 관계</h2>
+ <div class="flow"><svg viewBox="0 0 1080 282" role="img" aria-label="HTTP server, controller, database, outbound HTTP span으로 구성된 trace tree"><defs><marker id="a3" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8Z" fill="#5d8580"/></marker></defs><path class="arrow context" d="M540 82V126H275V166"/><path class="arrow context" d="M540 82V126H540V166"/><path class="arrow context" d="M540 82V126H805V166"/><rect class="flow-card trace" x="370" y="20" width="340" height="62" rx="9"/><text class="svg-title" x="391" y="49">HTTP server span</text><text class="svg-sub" x="391" y="68">resource: GET /orders/{id} · route after HandlerMapping</text><rect class="flow-card agent" x="122" y="166" width="306" height="74" rx="9"/><text class="svg-title" x="142" y="197">spring-web-controller</text><text class="svg-sub" x="142" y="218">resource: OrderController.getOrder</text><rect class="flow-card out" x="462" y="166" width="156" height="74" rx="9"/><text class="svg-title" x="482" y="197">JDBC span</text><text class="svg-sub" x="482" y="218">SELECT …</text><rect class="flow-card out" x="652" y="166" width="306" height="74" rx="9"/><text class="svg-title" x="672" y="197">HTTP client span</text><text class="svg-sub" x="672" y="218">GET inventory service</text></svg></div>
+ <div class="callout-grid"><div class="callout"><div class="number">01</div><h3>route ≠ handler resource</h3><p>HTTP server span은 <code>BEST_MATCHING_PATTERN_ATTRIBUTE</code>로 route를 갖고, controller span은 <code>onHandle</code>에서 Java class/method 기반 resource를 갖는다.</p></div><div class="callout"><div class="number">02</div><h3>span key는 request에 저장</h3><p>같은 handler에 대해 이미 만든 span/Context가 있으면 재사용하여 중복 생성을 막는다.</p></div><div class="callout"><div class="number">03</div><h3>DB·client span은 별도 module</h3><p>JDBC/HTTP client instrumentation이 활성화되어야 controller의 child span으로 연결된다. Controller Advice가 그것들을 직접 생성하지는 않는다.</p></div></div>
+</section>
+<section class="section" id="operations">
+ <div class="kicker">06 · operational boundaries</div><h2>이 도식이 보장하지 않는 것</h2>
+ <ul><li><b>정확한 support matrix:</b> Spring, Servlet API (<code>javax</code> vs <code>jakarta</code>), JDK, dd-trace-java release마다 matcher와 integration 지원 범위를 확인해야 한다.</li><li><b>표준 trace 전파:</b> inbound trace headers에서 server context를 추출하는 계층은 이 Spring MVC module 바깥의 HTTP/Servlet instrumentation이다. 이 문서는 controller child span 생성 지점에 초점을 맞춘다.</li><li><b>다른 agent 병용:</b> Datadog은 다른 APM/tracing Java agent와 동시 로딩을 지원하지 않는다. Byte Buddy/ASM transformer 충돌은 실제 target JDK·framework 조합에서 시험해야 한다.</li><li><b>수집 데이터:</b> URL, header, query, body tagging 설정은 PII/secret을 노출할 수 있다. span 구조 이해와 수집 정책 활성화는 별도 의사결정이다.</li></ul>
+</section>
+<section class="section" id="sources"><div class="kicker">07 · source map</div><h2>이 설명의 직접 코드 근거</h2><p>링크는 모두 DataDog의 공식 <code>dd-trace-java</code> 저장소 master 브랜치다. 소스는 지속적으로 변하므로, 운영 배포 시에는 사용 중인 tracer release tag로 다시 확인해야 한다.</p><div class="refs"><a href="https://github.com/DataDog/dd-trace-java/blob/master/dd-java-agent/instrumentation/spring/spring-webmvc/spring-webmvc-3.1/src/main/java/datadog/trace/instrumentation/springweb/HandlerAdapterInstrumentation.java" target="_blank" rel="noreferrer">HandlerAdapterInstrumentation.java — handle* matcher, controller span start/finish</a><a href="https://github.com/DataDog/dd-trace-java/blob/master/dd-java-agent/instrumentation/spring/spring-webmvc/spring-webmvc-3.1/src/main/java/datadog/trace/instrumentation/springweb/InvocableHandlerMethodInstrumentation.java" target="_blank" rel="noreferrer">InvocableHandlerMethodInstrumentation.java — CompletionStage continuation</a><a href="https://github.com/DataDog/dd-trace-java/blob/master/dd-java-agent/instrumentation/spring/spring-webmvc/spring-webmvc-3.1/src/main/java/datadog/trace/instrumentation/springweb/DispatcherServletInstrumentation.java" target="_blank" rel="noreferrer">DispatcherServletInstrumentation.java — mapping, render, exception advice</a><a href="https://github.com/DataDog/dd-trace-java/blob/master/dd-java-agent/instrumentation/spring/spring-webmvc/spring-webmvc-3.1/src/main/java/datadog/trace/instrumentation/springweb/SpringWebHttpServerDecorator.java" target="_blank" rel="noreferrer">SpringWebHttpServerDecorator.java — route and handler resource naming</a><a href="https://github.com/DataDog/dd-trace-java/blob/master/dd-java-agent/agent-installer/src/main/java/datadog/trace/agent/tooling/AgentInstaller.java" target="_blank" rel="noreferrer">AgentInstaller.java — AgentBuilder setup, retransformation, module application, JVM installation</a><a href="https://github.com/DataDog/dd-trace-java/blob/master/dd-java-agent/agent-tooling/src/main/java/datadog/trace/agent/tooling/InstrumenterModule.java" target="_blank" rel="noreferrer">InstrumenterModule.java — integration enablement, Muzzle, helper class contract</a><a href="https://github.com/DataDog/dd-trace-java/blob/master/ARCHITECTURE.md" target="_blank" rel="noreferrer">ARCHITECTURE.md — bootstrap, isolation, InstrumenterModule and transformer architecture</a><a href="https://docs.datadoghq.com/tracing/trace_collection/dd_libraries/java/" target="_blank" rel="noreferrer">Datadog Java tracing setup — -javaagent deployment guidance</a></div></section>
+</main></div><footer class="footer">Artifact: dd-trace-java Spring MVC Controller Trace Explainer · Korean · standalone HTML · generated from official code paths inspected on 2026-07-12</footer>
+</div>
+<script>
+const tabs=[...document.querySelectorAll('[data-tab]')];const panels=[...document.querySelectorAll('[data-panel]')];tabs.forEach(tab=>tab.addEventListener('click',()=>{tabs.forEach(t=>t.setAttribute('aria-selected',String(t===tab)));panels.forEach(p=>p.classList.toggle('active',p.dataset.panel===tab.dataset.tab))}));
+</script>
+</body></html>

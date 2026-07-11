@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Spring Kafka Listener Container Cookbook</title><style>
+:root{--bg:#08101b;--panel:#0f1c2b;--panel2:#13273a;--ink:#ebf3f8;--muted:#9bb0c2;--lime:#8ee78b;--cyan:#75d8f8;--amber:#ffce74;--red:#ff9494;--line:#29465e;--mono:ui-monospace,SFMono-Regular,Menlo,monospace;--sans:-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 75% 0,#153c4c 0,transparent 27rem),var(--bg);color:var(--ink);font:15px/1.7 var(--sans)}.top{padding:54px max(5vw,28px) 45px;border-bottom:1px solid var(--line)}.eyebrow,.kicker{font:700 11px/1 var(--mono);letter-spacing:.12em;color:var(--lime);text-transform:uppercase}.top h1{max-width:950px;margin:13px 0 10px;font-size:clamp(30px,5vw,61px);letter-spacing:-.055em;line-height:1.05}.top p{max-width:790px;color:var(--muted);font-size:17px}.meta{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}.chip{padding:4px 10px;border:1px solid var(--line);border-radius:99px;color:var(--cyan);font:12px var(--mono)}.layout{display:grid;grid-template-columns:265px minmax(0,940px);gap:42px;max-width:1280px;margin:0 auto;padding:35px 28px 110px}.toc{position:sticky;top:20px;align-self:start;border-left:1px solid var(--line);padding-left:17px}.toc b{font:12px var(--mono);color:var(--muted)}.toc a{display:block;color:#b8ccdc;text-decoration:none;padding:7px 0;font-size:13px}.toc a:hover{color:var(--lime)}main{min-width:0}.chapter{padding:33px 0;border-bottom:1px solid var(--line)}h2{font-size:28px;line-height:1.25;letter-spacing:-.035em;margin:9px 0 14px}h3{font-size:18px;margin:28px 0 8px;color:#d8eff7}p{margin:10px 0}code{font:12px var(--mono);color:#c9f6e7;background:#102a31;padding:2px 5px;border-radius:4px}.lead{font-size:17px;color:#d1e4ed}.flow{border:1px solid var(--line);border-radius:13px;background:linear-gradient(145deg,#0d2131,#0a1624);padding:18px;margin:20px 0;overflow:auto}.flowrow{display:flex;align-items:stretch;min-width:700px}.node{width:155px;flex:0 0 155px;border:1px solid #3a6480;border-radius:10px;padding:12px;background:#10263a}.node b{display:block;color:var(--cyan);font-size:13px}.node small{display:block;color:var(--muted);font:11px/1.45 var(--mono);margin-top:6px}.arrow{align-self:center;color:var(--lime);font:25px var(--mono);padding:0 7px}.note{background:#10242b;border-left:3px solid var(--lime);padding:14px 16px;color:#cae6e1;margin:16px 0}.warn{background:#2b201b;border-left:3px solid var(--amber);padding:14px 16px;color:#f3d9af;margin:16px 0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{border:1px solid var(--line);border-radius:11px;padding:16px;background:rgba(15,28,43,.82)}.card h3{margin:0 0 7px;font-size:16px}.card p,.card li{color:#c2d3df;font-size:14px}.codecap{border:1px solid #365c71;border-radius:11px;background:#07121c;margin:17px 0;overflow:hidden}.codecap header{display:flex;justify-content:space-between;gap:8px;padding:9px 12px;background:#102638;border-bottom:1px solid #365c71;color:var(--cyan);font:12px var(--mono)}pre{margin:0;padding:15px;overflow:auto;color:#d8e8f2;font:12px/1.55 var(--mono);tab-size:2}.callout{color:var(--amber)}table{width:100%;border-collapse:collapse;margin:15px 0;font-size:14px}th{text-align:left;color:var(--cyan);font:12px var(--mono)}td,th{border-bottom:1px solid var(--line);padding:10px;vertical-align:top}td{color:#c6d5df}.steps{counter-reset:n;padding:0;list-style:none}.steps li{counter-increment:n;padding:12px 12px 12px 48px;position:relative;border-left:1px solid #3a617a}.steps li:before{content:counter(n);position:absolute;left:-15px;top:10px;width:29px;height:29px;border-radius:50%;display:grid;place-items:center;background:#17394a;color:var(--lime);font:700 12px var(--mono)}details{border:1px solid var(--line);border-radius:9px;margin:12px 0;background:#0c1927}summary{cursor:pointer;padding:12px 14px;color:var(--lime);font:600 12px var(--mono)}a{color:var(--cyan)}footer{padding:35px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:850px){.layout{display:block;padding:20px}.toc{position:static;margin-bottom:25px}.grid{grid-template-columns:1fr}.top{padding:37px 24px}.flowrow{min-width:650px}}
+</style></head><body>
+<header class="top"><div class="eyebrow">Spring Kafka · codebase cookbook</div><h1>@KafkaListener가<br>Spring 기동 뒤 실행되기까지</h1><p>Listener Container를 단순 설정 객체가 아니라 <b>Spring lifecycle · Kafka consumer group · polling thread · offset boundary</b>가 만나는 런타임으로 읽는 코드베이스 가이드.</p><div class="meta"><span class="chip">Spring Kafka main · 4.1.1-SNAPSHOT 당시</span><span class="chip">source commit 4313f430…b0849f73</span><span class="chip">official sources only</span></div></header>
+<div class="layout"><aside class="toc"><b>읽는 순서</b><a href="#map">01 전체 지도</a><a href="#boot">02 Annotation → Endpoint</a><a href="#registry">03 Registry → Lifecycle</a><a href="#concurrency">04 Concurrency → Consumer</a><a href="#poll">05 Poll → User method</a><a href="#offset">06 Offset · Error · Tx</a><a href="#ops">07 운영 cookbook</a><a href="#sources">08 source map</a></aside><main>
+<section class="chapter" id="map"><div class="kicker">Chapter 01</div><h2>먼저, 실행 주체를 분리한다</h2><p class="lead"><code>@KafkaListener</code> method는 스스로 poll하지 않는다. Spring이 endpoint를 만들고, registry가 container를 lifecycle에 연결하며, child consumer thread가 adapter를 통해 그 method를 호출한다.</p><div class="flow"><div class="flowrow"><div class="node"><b>ApplicationContext</b><small>bean creation / refresh</small></div><div class="arrow">→</div><div class="node"><b>KLABPP</b><small>annotation scan<br>endpoint model</small></div><div class="arrow">→</div><div class="node"><b>Registry</b><small>SmartLifecycle<br>id → container</small></div><div class="arrow">→</div><div class="node"><b>Factory</b><small>adapter + properties<br>concrete container</small></div><div class="arrow">→</div><div class="node"><b>KMLC</b><small>KafkaConsumer<br>poll loop</small></div></div></div><div class="note"><b>읽기 규칙.</b> “listener가 실행된다”는 말은 실제로는 <code>KafkaMessageListenerContainer.ListenerConsumer</code>의 consumer thread가 <code>consumer.poll()</code> 결과를 message-listener adapter로 전달한다는 뜻이다.</div></section>
+<section class="chapter" id="boot"><div class="kicker">Chapter 02</div><h2>Spring 기동: annotation을 endpoint로 바꾸는 시점</h2><ol class="steps"><li><b><code>@EnableKafka</code></b>는 <code>KafkaListenerConfigurationSelector</code>를 통해 bootstrap configuration을 늦게 import한다.</li><li><b><code>KafkaBootstrapConfiguration</code></b>이 infrastructure bean으로 <code>KafkaListenerAnnotationBeanPostProcessor</code>와 <code>KafkaListenerEndpointRegistry</code>를 등록한다.</li><li>각 application bean 초기화 뒤 KLABPP가 target class와 method에서 <code>@KafkaListener</code>를 찾는다.</li><li><code>MethodKafkaListenerEndpoint</code>에 method와 annotation metadata를 담고 registrar에 등록한다.</li><li>모든 singleton 준비 후 registrar가 endpoint별 factory를 해결하여 registry에 concrete container 생성을 요청한다.</li></ol><div class="codecap"><header><span>KafkaListenerAnnotationBeanPostProcessor.java · actual source capture</span><span>lines 385–427</span></header><pre><span class="callout">@Override</span>
+public Object postProcessAfterInitialization(final Object bean, final String beanName) throws BeansException {
+  buildEnhancer();
+  if (!this.nonAnnotatedClasses.contains(bean.getClass())) {
+    Class&lt;?&gt; targetClass = AopUtils.getTargetClass(bean);
+    Collection&lt;KafkaListener&gt; classLevelListeners = findListenerAnnotations(targetClass);
+    Map&lt;Method, Set&lt;KafkaListener&gt;&gt; annotatedMethods = MethodIntrospector.selectMethods(targetClass,
+      (MethodIntrospector.MetadataLookup&lt;Set&lt;KafkaListener&gt;&gt;) method -&gt; {
+        Set&lt;KafkaListener&gt; listenerMethods = findListenerAnnotations(method);
+        return (!listenerMethods.isEmpty() ? listenerMethods : null);
+      });
+    boolean hasClassLevelListeners = !classLevelListeners.isEmpty();
+    boolean hasMethodLevelListeners = !annotatedMethods.isEmpty();
+    if (!hasMethodLevelListeners && !hasClassLevelListeners) {
+      this.nonAnnotatedClasses.add(bean.getClass());
+      this.logger.trace(() -&gt; "No @KafkaListener annotations found on bean type: " + bean.getClass());
+    }
+    else {
+      if (hasMethodLevelListeners) {
+        for (Map.Entry&lt;Method, Set&lt;KafkaListener&gt;&gt; entry : annotatedMethods.entrySet()) {
+          Method method = entry.getKey();
+          for (KafkaListener listener : entry.getValue()) {
+            processKafkaListener(listener, method, bean, beanName);
+          }
+        }
+        this.logger.debug(() -&gt; annotatedMethods.size() + " @KafkaListener methods processed on bean '"
+          + beanName + "': " + annotatedMethods);
+      }
+      if (hasClassLevelListeners) {
+        Set&lt;Method&gt; methodsWithHandler = MethodIntrospector.selectMethods(targetClass,
+          (ReflectionUtils.MethodFilter) method -&gt;
+            AnnotationUtils.findAnnotation(method, KafkaHandler.class) != null);
+
+        if (methodsWithHandler.isEmpty()) {
+          throw new IllegalStateException("No Kafka listener methods in bean: " + bean);
+        }
+
+        List&lt;Method&gt; multiMethods = new ArrayList&lt;&gt;(methodsWithHandler);
+        processMultiMethodListeners(classLevelListeners, multiMethods, targetClass, bean, beanName);
+      }
+    }
+  }
+  return bean;
+}</pre></div><div class="codecap"><header><span>same class · endpoint creation</span><span>lines 496–504</span></header><pre>protected void processKafkaListener(KafkaListener kafkaListener, Method method, Object bean,
+    String beanName) {
+  try {
+    this.globalLock.lock();
+    Method methodToUse = checkProxy(method, bean);
+    MethodKafkaListenerEndpoint&lt;K, V&gt; endpoint = new MethodKafkaListenerEndpoint&lt;&gt;();
+    endpoint.setMethod(methodToUse);
+    processMainAndRetryListeners(kafkaListener, bean, beanName, endpoint, methodToUse, null);
+  }
+  finally {
+    this.globalLock.unlock();
+  }
+}</pre></div><p>여기서 endpoint는 id, group id, topics/pattern/partitions, client id prefix, concurrency, auto-startup, consumer overrides, ack mode, filter, error handler 등을 보존한다. 아직 Kafka client도, poll thread도 없다.</p></section>
+<section class="chapter" id="registry"><div class="kicker">Chapter 03</div><h2>Registry: container를 일반 bean이 아닌 lifecycle object로 다룬다</h2><p><code>KafkaListenerEndpointRegistry</code>는 <code>SmartLifecycle</code>이다. annotation으로 만든 listener container는 보통 application context의 독립 bean이 아니라 registry map에서 id로 관리된다.</p><div class="codecap"><header><span>KafkaListenerEndpointRegistry.java · create and retain</span><span>lines 258–292</span></header><pre>public void registerListenerContainer(KafkaListenerEndpoint endpoint,
+    KafkaListenerContainerFactory&lt;?&gt; factory, boolean startImmediately) {
+  Assert.notNull(endpoint, "Endpoint must not be null");
+  Assert.notNull(factory, "Factory must not be null");
+  String id = endpoint.getId();
+  Assert.hasText(id, "Endpoint id must not be empty");
+  this.containersLock.lock();
+  try {
+    Assert.state(!this.listenerContainers.containsKey(id),
+      "Another endpoint is already registered with id '" + id + "'");
+    MessageListenerContainer container = createListenerContainer(endpoint, factory);
+    this.listenerContainers.put(id, container);
+    ...
+    if (startImmediately) {
+      startIfNecessary(container);
+    }
+  }
+  finally { this.containersLock.unlock(); }
+}</pre></div><div class="codecap"><header><span>same class · lifecycle decision</span><span>lines 381–440</span></header><pre><span class="callout">@Override</span>
+public void start() {
+  for (MessageListenerContainer listenerContainer : getListenerContainers()) {
+    startIfNecessary(listenerContainer);
+  }
+  this.running = true;
+}
+
+private void startIfNecessary(MessageListenerContainer listenerContainer) {
+  if ((this.contextRefreshed && this.alwaysStartAfterRefresh)
+      || listenerContainer.isAutoStartup()) {
+    listenerContainer.start();
+  }
+}</pre></div><div class="warn"><b>Late registration 함정.</b> context refresh 뒤 endpoint를 등록하면 SmartLifecycle 계약 때문에 기본적으로 즉시 시작될 수 있다. 단지 <code>autoStartup=false</code>만 보고 안전하다고 판단하지 말고 registry의 <code>alwaysStartAfterRefresh</code>를 확인한다.</div><p>default phase는 <code>Integer.MAX_VALUE - 100</code>이고 auto-startup 기본값은 true다. DB migration, cache warmup, downstream readiness가 listener보다 먼저 끝나야 한다면 해당 SmartLifecycle component의 phase를 더 이르게 설계한다.</p></section>
+<section class="chapter" id="concurrency"><div class="kicker">Chapter 04</div><h2>Concurrency는 thread 수가 아니라 consumer topology다</h2><div class="grid"><article class="card"><h3>KMLC</h3><p><code>KafkaMessageListenerContainer</code> 하나는 하나의 KafkaConsumer와 하나의 consumer thread를 가진다. 한 partition 내부 ordering은 이 직렬 처리 경계 위에 있다.</p></article><article class="card"><h3>CMLC</h3><p><code>ConcurrentMessageListenerContainer</code>는 child KMLC를 N개 만들고 start/stop/pause/metrics를 집계하는 parent다. <code>concurrency=N</code>은 일반적으로 consumer N개다.</p></article></div><table><thead><tr><th>입력 모델</th><th>partition을 누가 배정하는가</th><th>concurrency보다 적은 partition일 때</th></tr></thead><tbody><tr><td>topics / topic pattern</td><td>Kafka consumer group coordinator + assignor</td><td>idle consumer가 가능하다.</td></tr><tr><td>explicit TopicPartitionOffset</td><td>CMLC가 child KMLC에 나눈다</td><td>container가 concurrency를 partition 수에 맞춰 낮춘다.</td></tr></tbody></table><p>따라서 처리 병렬성은 단순한 설정값이 아니라 <code>min(concurrency, assigned partitions)</code>에 가까운 결과다. 여러 topic과 기본 RangeAssignor 조합에서는 원하는 분배가 나오지 않을 수 있다.</p><div class="note"><b>thread-safety.</b> concurrent listener는 같은 bean instance를 여러 consumer thread에서 호출한다. listener와 공유 deserializer instance 모두 thread-safe인지 확인한다. thread-local을 쓰면 <code>ConsumerStoppedEvent</code>를 cleanup hook으로 설계한다.</div></section>
+<section class="chapter" id="poll"><div class="kicker">Chapter 05</div><h2>실제 실행: child consumer thread의 poll loop</h2><p>container가 start된 뒤 user method를 직접 호출하는 것이 아니다. KMLC는 <code>ListenerConsumer</code>를 만들어 executor에 제출한다.</p><div class="codecap"><header><span>KafkaMessageListenerContainer.java · child startup</span><span>lines 370–403</span></header><pre><span class="callout">@Override</span>
+protected void doStart() {
+  if (isRunning()) { return; }
+  ...
+  this.listenerConsumer = new ListenerConsumer(listener, listenerType, observationRegistry);
+  setRunning(true);
+  this.startLatch = new CountDownLatch(1);
+  this.listenerConsumerFuture = consumerExecutor.submitCompletable(this.listenerConsumer);
+}</pre></div><div class="flow"><div class="flowrow"><div class="node"><b>ListenerConsumer</b><small>createConsumer<br>subscribe / assign</small></div><div class="arrow">→</div><div class="node"><b>while running</b><small>pollAndInvoke()</small></div><div class="arrow">→</div><div class="node"><b>KafkaConsumer.poll</b><small>records batch</small></div><div class="arrow">→</div><div class="node"><b>adapter.onMessage</b><small>ack / consumer args</small></div><div class="arrow">→</div><div class="node"><b>your method</b><small>@KafkaListener</small></div></div></div><p>개념적으로 loop는 pending commit/seek/rebalance/pause 상태를 먼저 처리하고, <code>doPoll()</code>에서 records를 받아 record 또는 batch adapter로 dispatch한다. record listener는 각 record에 대해 adapter의 <code>onMessage(record[, acknowledgment][, consumer])</code>를 호출하고, adapter가 `InvocableHandlerMethod`를 통해 user method를 실행한다.</p><div class="warn"><b>consumer thread 경계.</b> <code>nack()</code>, partial batch ack, Consumer API의 position/commit/seek와 직접 결합되는 동작은 listener를 호출한 consumer thread 경계를 넘기면 안 된다. 비동기 executor로 넘긴 작업이 consumer 또는 transaction context를 자동 상속한다고 가정하지 않는다.</div></section>
+<section class="chapter" id="offset"><div class="kicker">Chapter 06</div><h2>Offset · Error · Transaction: 재처리 의미를 결정하는 세 겹</h2><h3>AckMode를 먼저 선택한다</h3><table><thead><tr><th>mode</th><th>commit boundary</th><th>주의점</th></tr></thead><tbody><tr><td><code>RECORD</code></td><td>각 record listener 정상 반환 뒤</td><td>commit 빈도가 늘 수 있다.</td></tr><tr><td><code>BATCH</code></td><td>poll batch 전체 처리 뒤</td><td>기본값; batch 일부 실패는 재처리 범위를 바꾼다.</td></tr><tr><td><code>TIME/COUNT</code></td><td>batch 처리 + 시간/수량 조건</td><td>더 큰 duplicate window를 이해한다.</td></tr><tr><td><code>MANUAL</code></td><td>ack 후 batch semantics</td><td>listener 책임이 커진다.</td></tr><tr><td><code>MANUAL_IMMEDIATE</code></td><td>consumer thread에서 ack 즉시</td><td>호출 thread가 중요하다.</td></tr></tbody></table><p>컨테이너 offset 모델을 쓸 때 auto commit은 대개 false여야 한다. Spring Kafka 2.3+는 명시하지 않으면 이를 false로 설정한다. <code>asyncAcks</code>는 순서 밖 manual ack를 허용하지만 gap에서 consumer pause/commit 지연을 일으킬 수 있으며 <code>nack()</code>와 함께 쓸 수 없다.</p><h3>Error handler와 transaction은 같은 retry가 아니다</h3><div class="grid"><article class="card"><h3>Non-transactional</h3><p><code>DefaultErrorHandler</code> + bounded BackOff + recoverer/DLT의 조합을 명시한다. 무한 retry는 poison record가 partition을 계속 막는 선택이다.</p></article><article class="card"><h3>Transactional</h3><p>listener 성공 시 offsets는 <code>sendOffsetsToTransaction</code>으로 transaction에 결합될 수 있다. 예외를 error handler가 삼키면 rollback을 기대한 경로가 사라질 수 있다.</p></article></div><div class="note"><b>EOS의 정확한 범위.</b> Spring Kafka 3.0+ EOS V2에서 read-process-write의 write는 exactly once로 보호될 수 있지만, 외부 DB 호출이나 user business code가 “딱 한 번” 수행된다는 일반 보장은 아니다. idempotency/outbox/transaction boundary를 별도로 설계한다.</div></section>
+<section class="chapter" id="ops"><div class="kicker">Chapter 07</div><h2>운영 cookbook: 증상에서 코드 경계로</h2><table><thead><tr><th>관찰된 증상</th><th>먼저 볼 경계</th><th>점검 질문</th></tr></thead><tbody><tr><td>기동 직후 메시지를 너무 일찍 소비</td><td>Registry SmartLifecycle phase</td><td>DB/downstream이 earlier phase에서 준비되는가?</td></tr><tr><td>concurrency를 올려도 throughput 불변</td><td>partition assignment</td><td>partition 수/assignor/idle consumer를 확인했는가?</td></tr><tr><td>처리 중 rebalance</td><td><code>max.poll.interval.ms</code> / listener p99</td><td>batch 처리 + sleep/backoff가 poll interval 안인가?</td></tr><tr><td>poison record가 멈춤</td><td>DefaultErrorHandler / DLT</td><td>bounded retry와 recoverer가 명시됐는가?</td></tr><tr><td>AUTH 오류 후 listener stop</td><td><code>authExceptionRetryInterval</code></td><td>fatal stop vs credential recovery retry를 의도했는가?</td></tr><tr><td>소비가 멈춘 듯함</td><td>events / monitor interval</td><td>NonResponsiveConsumer, idle, stopped events를 수집하는가?</td></tr></tbody></table><details><summary>권장 startup readiness sequence</summary><pre>1. Kafka client security / DNS / bootstrap configuration 검증
+2. DB migration, cache, downstream dependency readiness
+3. Kafka listener container registry start (late phase)
+4. consumer assignment / ConsumerStartedEvent 관측
+5. poll/processing/commit/lag metrics 및 trace 확인
+6. maintenance 시 parent CMLC 또는 registry 경로로 stop → drain/commit → start</pre></details><details><summary>metrics와 tracing 최소 구성</summary><pre>- Kafka client metrics: producer/consumer factory listener
+- processing timer: spring.kafka.listener 성공/실패
+- tracing: ContainerProperties.observationEnabled=true
+- tag: listener.id 등 low-cardinality만
+- alert: ConsumerStoppedEvent, auth/fenced reason, NonResponsiveConsumerEvent,
+         lag, rebalance rate, error/DLT volume</pre></details></section>
+<section class="chapter" id="sources"><div class="kicker">Chapter 08</div><h2>공식 source map</h2><p>이 cookbook은 공식 Spring Kafka repository와 공식 Reference만 이용했다. 설명의 구현 세부는 아래 commit에 고정했다.</p><ul><li><a href="https://github.com/spring-projects/spring-kafka/tree/4313f430534cea392eac569f225324c8b0849f73">spring-projects/spring-kafka · pinned commit</a></li><li><a href="https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-annotation.html">Listener Annotation reference</a></li><li><a href="https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/message-listener-container.html">Message Listener Containers reference</a></li><li><a href="https://docs.spring.io/spring-kafka/reference/kafka/container-props.html">Container Properties</a></li><li><a href="https://docs.spring.io/spring-kafka/reference/kafka/annotation-error-handling.html">Error Handling</a></li><li><a href="https://docs.spring.io/spring-kafka/reference/kafka/transactions.html">Transactions</a></li><li><a href="https://docs.spring.io/spring-kafka/reference/kafka/events.html">Application Events</a></li></ul></section>
+</main></div><footer>Spring Kafka Listener Container Cookbook · source capture 2026-07-11 · internal code paths should be rechecked against the deployed Spring Kafka version</footer></body></html>

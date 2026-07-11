@@ -22,6 +22,9 @@ class Concept:
     timestamp: str | None
     body: str
     links: list[str]
+    title_ko: str | None = None
+    description_ko: str | None = None
+    body_ko: str | None = None
 
 
 def _concept_id(path: str) -> str:
@@ -73,12 +76,15 @@ def parse_concept(path: str, source: str) -> Concept:
         timestamp=metadata.get("timestamp"),
         body=body,
         links=_extract_links(concept_id, body),
+        title_ko=metadata.get("title_ko"),
+        description_ko=metadata.get("description_ko"),
+        body_ko=metadata.get("body_ko"),
     )
 
 
 def render_concept(concept: Concept) -> str:
     metadata: dict[str, Any] = {"type": concept.type, "title": concept.title}
-    for key in ("description", "resource", "tags", "timestamp"):
+    for key in ("description", "resource", "tags", "timestamp", "title_ko", "description_ko", "body_ko"):
         value = getattr(concept, key)
         if value not in (None, [], ""):
             metadata[key] = value

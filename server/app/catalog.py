@@ -15,7 +15,7 @@ def _vector_literal(vector: list[float] | None) -> str | None:
 
 
 def _concept_text(concept: Concept) -> str:
-    return "\n".join(part for part in [concept.title, concept.description or "", concept.body] if part)
+    return "\n".join(part for part in [concept.title, concept.title_ko or "", concept.description or "", concept.description_ko or "", concept.body, concept.body_ko or ""] if part)
 
 
 def fuse_ranked_ids(*rankings: Sequence[str], limit: int = 10, k: int = 60) -> list[str]:
