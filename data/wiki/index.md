@@ -21,6 +21,8 @@
 - [Spring Kafka Listener Containers](/concepts/spring-kafka-listener-containers.md) — `@KafkaListener` endpoint discovery, lifecycle, consumer threads, poll loop, offsets, errors, and transactions.
 - [Ktor](/concepts/ktor.md) — Apache-2.0 Kotlin asynchronous framework for HTTP services, web applications, and networking.
 - [Exposed](/concepts/exposed.md) — Apache-2.0 Kotlin type-safe SQL DSL/DAO library over JDBC and R2DBC.
+- [Spring AI](/concepts/spring-ai.md) — Spring-friendly Java APIs and Boot integration for AI models, vector stores, tools, and AI application workflows.
+- [Spring OSS ecosystem catalog](/concepts/spring-oss-ecosystem.md) — official Spring-project curation boundary and status record.
 
 ## Comparisons
 
@@ -37,3 +39,4 @@
 - [Spring Kafka listener-container source capture (2026-07-11)](/sources/spring-kafka-listener-container-2026-07-11.md) — immutable official repository/ref-doc provenance for listener lifecycle analysis.
 - [Ktor README capture (2026-07-11)](/sources/ktor-readme-2026-07-11.md) — immutable official repository provenance for Ktor framework analysis.
 - [Exposed README capture (2026-07-11)](/sources/exposed-readme-2026-07-11.md) — immutable official repository provenance for Kotlin database-access analysis.
+- [Spring AI README capture (2026-07-11)](/sources/spring-ai-readme-2026-07-11.md) — immutable official upstream capability and license provenance.

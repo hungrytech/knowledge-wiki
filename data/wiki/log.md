@@ -2,6 +2,8 @@
 
 ## 2026-07-12
 
+* **Spring OSS curation**: Added [Spring AI](/concepts/spring-ai.md), an immutable [official README capture](/sources/spring-ai-readme-2026-07-11.md) pinned by SHA-256 and upstream commit, and the [Spring OSS ecosystem catalog](/concepts/spring-oss-ecosystem.md). The Concept distinguishes model/vector/tool integration from provider services and records operational, security, compatibility, and portability boundaries.
+
 * **Bilingual presentation**: Added Korean translation extensions (`title_ko`, `description_ko`, `body_ko`) to the Markdown-first API and Korean/English detail-view selection. Full Korean and English Concept views are now curated for [Ktor](/concepts/ktor.md) and [Exposed](/concepts/exposed.md); immutable Source captures remain preserved as their English primary-source records.
 
 ## 2026-07-11
