@@ -1,4 +1,4 @@
-from app.catalog import semantic_ids, sync_catalog
+from app.catalog import fuse_ranked_ids, semantic_ids, sync_catalog
 from app.okf import Concept
 
 
@@ -53,3 +53,13 @@ def test_semantic_ids_orders_by_pgvector_distance(monkeypatch):
 
     assert ids == ["concepts/okf", "concepts/pgvector"]
     assert '<=>' in connection.cursor_instance.calls[0][0]
+
+
+def test_fuse_ranked_ids_uses_rrf_to_reward_results_present_in_both_retrievers():
+    fused = fuse_ranked_ids(
+        ["sources/spec", "concepts/flags"],
+        ["concepts/flags", "concepts/openfeature"],
+        limit=3,
+    )
+
+    assert fused == ["concepts/flags", "sources/spec", "concepts/openfeature"]

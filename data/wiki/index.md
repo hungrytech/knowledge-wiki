@@ -9,7 +9,13 @@
 
 ## Concepts
 
+- [Feature configuration](/concepts/feature-configuration.md) — runtime flags, remote configuration, targeting, and experimentation controls.
+- [OpenFeature](/concepts/openfeature.md) — vendor-neutral feature-flag evaluation API and provider model.
 - [pgvector](/concepts/pgvector.md) — vector search extension for PostgreSQL.
+
+## Comparisons
+
+- [Self-hosted feature configuration platforms](/comparisons/feature-flag-platforms.md) — Unleash, Flagsmith, GrowthBook, Flipt, and OpenFeature decision guide.
 
 ## Sources
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections import defaultdict
+from collections.abc import Callable, Sequence
 
 import psycopg
 
@@ -15,6 +16,18 @@ def _vector_literal(vector: list[float] | None) -> str | None:
 
 def _concept_text(concept: Concept) -> str:
     return "\n".join(part for part in [concept.title, concept.description or "", concept.body] if part)
+
+
+def fuse_ranked_ids(*rankings: Sequence[str], limit: int = 10, k: int = 60) -> list[str]:
+    """Fuse independently ranked document IDs with reciprocal rank fusion."""
+    scores: dict[str, float] = defaultdict(float)
+    first_seen: dict[str, int] = {}
+    for ranking in rankings:
+        for rank, document_id in enumerate(ranking):
+            scores[document_id] += 1 / (k + rank + 1)
+            first_seen.setdefault(document_id, len(first_seen))
+    ordered = sorted(scores, key=lambda document_id: (-scores[document_id], first_seen[document_id]))
+    return ordered[:limit]
 
 
 def sync_catalog(
