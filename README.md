@@ -1,5 +1,7 @@
 # Knowledge Wiki
 
+[English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh-CN.md)
+
 <p align="center">
   <img src="assets/knowledge-wiki-hero.svg" alt="Knowledge Wiki: Markdown source documents flow through a local API into pgvector search" width="100%" />
 </p>
@@ -176,7 +178,7 @@ docker compose exec -T postgres psql -U knowledge -d knowledge_wiki -Atc \
 
 ## License
 
-This repository does not yet include a root license. Add one before accepting outside contributions or distributing the code as a reusable project.
+This project is released under the [MIT License](LICENSE).
 
 ---
 
