@@ -4,6 +4,7 @@ dist/
 __pycache__/
 .pytest_cache/
 .env
+.env.api
 
 # The personal knowledge corpus stays local; do not publish it with the application.
 /data/wiki/*

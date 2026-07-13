@@ -142,3 +142,50 @@ def test_api_semantic_search_uses_local_embeddings_and_pgvector_ids(tmp_path, mo
 
     assert response.status_code == 200
     assert [item["id"] for item in response.json()] == ["concepts/pgvector"]
+
+
+def test_api_prefers_configured_neo4j_graph_projection(tmp_path):
+    _write_concept(tmp_path, "concepts/okf.md", "---\ntype: Concept\ntitle: OKF\n---\n\n# OKF")
+
+    class GraphStore:
+        def __init__(self):
+            self.synced = []
+
+        def sync(self, concepts):
+            self.synced = [concept.id for concept in concepts]
+
+        def graph(self):
+            return {
+                "source": "neo4j",
+                "nodes": [{"id": "concepts/okf", "label": "OKF", "type": "Concept", "tags": []}],
+                "edges": [],
+            }
+
+    store = GraphStore()
+    with TestClient(create_app(tmp_path, graph_store=store)) as client:
+        response = client.get("/api/graph")
+
+    assert store.synced == ["concepts/okf"]
+    assert response.json()["source"] == "neo4j"
+    assert response.json()["nodes"][0]["id"] == "concepts/okf"
+
+
+def test_ingest_resyncs_configured_neo4j_graph_projection(tmp_path):
+    class GraphStore:
+        def __init__(self):
+            self.snapshots = []
+
+        def sync(self, concepts):
+            self.snapshots.append([concept.id for concept in concepts])
+
+        def graph(self):
+            return {"source": "neo4j", "nodes": [], "edges": []}
+
+    store = GraphStore()
+    with TestClient(create_app(tmp_path, graph_store=store)) as client:
+        response = client.post("/api/documents", json={
+            "type": "Concept", "title": "Neo4j projection", "description": "derived graph", "tags": ["neo4j"], "resource": None, "body": "# Neo4j"
+        })
+
+    assert response.status_code == 201
+    assert store.snapshots == [[], ["concepts/neo4j-projection"]]

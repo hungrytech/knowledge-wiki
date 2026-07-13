@@ -15,6 +15,7 @@ import yaml
 import httpx
 
 from .catalog import semantic_ids, sync_catalog
+from .neo4j_graph import Neo4jGraphProjection, create_projection
 from .embeddings import LocalEmbedder
 from .okf import Concept, parse_concept, render_concept
 from .sources import fetch_url
@@ -51,16 +52,26 @@ def create_app(
     wiki_root: Path | None = None,
     url_fetcher: Callable[[str], tuple[str, str]] = fetch_url,
     embedder: LocalEmbedder | None = None,
+    graph_store: Neo4jGraphProjection | None = None,
 ) -> FastAPI:
     root = wiki_root or Path(os.environ.get("WIKI_ROOT", str(Path.cwd().parent / "data/wiki")))
     root.mkdir(parents=True, exist_ok=True)
+    if graph_store is None:
+        neo4j_uri = os.environ.get("NEO4J_URI")
+        neo4j_user = os.environ.get("NEO4J_USER")
+        neo4j_password = os.environ.get("NEO4J_PASSWORD")
+        if neo4j_uri and neo4j_user and neo4j_password:
+            graph_store = create_projection(neo4j_uri, neo4j_user, neo4j_password)
     database_url = os.environ.get("DATABASE_URL")
     local_embedder = embedder or (LocalEmbedder() if database_url else None)
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
+        concepts = load_concepts(root)
         if database_url:
-            sync_catalog(database_url, load_concepts(root), embed=local_embedder.encode if local_embedder else None)
+            sync_catalog(database_url, concepts, embed=local_embedder.encode if local_embedder else None)
+        if graph_store:
+            graph_store.sync(concepts)
         yield
 
     app = FastAPI(title="Knowledge Wiki API", lifespan=lifespan)
@@ -82,10 +93,13 @@ def create_app(
         return [concept.__dict__ for concept in load_concepts(root)]
 
     @app.get("/api/graph")
-    def graph() -> dict[str, list[dict]]:
+    def graph() -> dict[str, list[dict] | str]:
+        if graph_store:
+            return graph_store.graph()
         concepts = load_concepts(root)
         ids = {concept.id for concept in concepts}
         return {
+            "source": "filesystem",
             "nodes": [{"id": concept.id, "label": concept.title, "type": concept.type, "tags": concept.tags} for concept in concepts],
             "edges": [
                 {"source": concept.id, "target": target}
@@ -137,8 +151,11 @@ def create_app(
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(render_concept(concept), encoding="utf-8")
         saved = parse_concept(relative, target.read_text(encoding="utf-8"))
+        concepts = load_concepts(root)
         if database_url:
-            sync_catalog(database_url, load_concepts(root), embed=local_embedder.encode if local_embedder else None)
+            sync_catalog(database_url, concepts, embed=local_embedder.encode if local_embedder else None)
+        if graph_store:
+            graph_store.sync(concepts)
         return saved.__dict__
 
     @app.post("/api/ingest-url", status_code=201)
@@ -160,8 +177,11 @@ def create_app(
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(f"---\n{yaml.safe_dump(metadata, allow_unicode=True, sort_keys=False).strip()}\n---\n\n{body.strip()}\n", encoding="utf-8")
         saved = parse_concept(relative, target.read_text(encoding="utf-8"))
+        concepts = load_concepts(root)
         if database_url:
-            sync_catalog(database_url, load_concepts(root), embed=local_embedder.encode if local_embedder else None)
+            sync_catalog(database_url, concepts, embed=local_embedder.encode if local_embedder else None)
+        if graph_store:
+            graph_store.sync(concepts)
         return saved.__dict__
 
     return app
