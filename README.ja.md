@@ -2,7 +2,7 @@
 
 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh-CN.md)
 
-<p align="center"><img src="assets/knowledge-wiki-hero.svg" alt="Markdown、ローカル API、pgvector による Knowledge Wiki の構成" width="100%" /></p>
+<p align="center"><img src="assets/wikibrain-carto/wikibrain-04d-centered-boy-wikibrain-title.png" alt="WikiBrain: 少年と親しみやすい脳のマスコットがつながった知識マップを探検する様子" width="100%" /></p>
 <p align="center"><strong>再現可能なリサーチとローカルなセマンティック検索のための、Markdown ネイティブ・ローカルファースト知識システム。</strong></p>
 
 > **状態: 初期段階ですが動作します。** OKF スタイルの Markdown が正本であり、PostgreSQL と pgvector は再構築可能な検索投影です。

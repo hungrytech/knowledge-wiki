@@ -3,7 +3,7 @@
 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh-CN.md)
 
 <p align="center">
-  <img src="assets/knowledge-wiki-hero.svg" alt="Knowledge Wiki: Markdown source documents flow through a local API into pgvector search" width="100%" />
+  <img src="assets/wikibrain-carto/wikibrain-04d-centered-boy-wikibrain-title.png" alt="WikiBrain: a young researcher and a friendly brain mascot explore a linked knowledge map" width="100%" />
 </p>
 
 <p align="center">

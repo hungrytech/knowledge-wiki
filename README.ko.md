@@ -3,7 +3,7 @@
 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh-CN.md)
 
 <p align="center">
-  <img src="assets/knowledge-wiki-hero.svg" alt="Markdown 문서가 로컬 API와 pgvector 검색으로 흐르는 Knowledge Wiki 구조" width="100%" />
+  <img src="assets/wikibrain-carto/wikibrain-04d-centered-boy-wikibrain-title.png" alt="WikiBrain: 소년과 친근한 뇌 마스코트가 연결된 지식 지도를 탐색하는 모습" width="100%" />
 </p>
 
 <p align="center"><strong>재현 가능한 조사와 로컬 의미 검색을 위한, Markdown 중심·로컬 우선 지식 시스템.</strong></p>

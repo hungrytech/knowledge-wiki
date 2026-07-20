@@ -2,7 +2,7 @@
 
 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh-CN.md)
 
-<p align="center"><img src="assets/knowledge-wiki-hero.svg" alt="Markdown 文档经由本地 API 流向 pgvector 搜索的 Knowledge Wiki 架构" width="100%" /></p>
+<p align="center"><img src="assets/wikibrain-carto/wikibrain-04d-centered-boy-wikibrain-title.png" alt="WikiBrain：一个少年和友好的大脑吉祥物探索相连的知识地图" width="100%" /></p>
 <p align="center"><strong>一个以 Markdown 为原生格式、以本地优先为原则，支持可复现研究与本地语义检索的知识系统。</strong></p>
 
 > **状态：仍在早期，但已经可用。** OKF 风格 Markdown 是权威来源；PostgreSQL 和 pgvector 是可重新构建的搜索投影。
